@@ -28,11 +28,21 @@ class GstpluginsbadConan(ConanFile):
     "gmp/6.1.2@conanos/dev","libtasn1/4.13@conanos/dev","libtiff/4.0.9@conanos/dev","harfbuzz/1.7.5@conanos/dev")
 
     source_subfolder = "source_subfolder"
-    
+    remotes = {'origin': 'https://github.com/GStreamer/gst-plugins-bad.git'}
+
     def source(self):
-        tools.get("{0}/archive/{1}.tar.gz".format(self.homepage, self.version))
-        extracted_dir = "gst-plugins-bad-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
+        #tools.get("{0}/archive/{1}.tar.gz".format(self.homepage, self.version))
+        #extracted_dir = "gst-plugins-bad-" + self.version
+        #os.rename(extracted_dir, self.source_subfolder)
+        tools.mkdir(self.source_subfolder)
+        with tools.chdir(self.source_subfolder):
+            self.run('git init')
+            for key, val in self.remotes.items():
+                self.run("git remote add %s %s"%(key, val))
+            self.run('git fetch --all')
+            self.run('git reset --hard %s'%(self.version))
+            self.run('git submodule update --init --recursive')
+
 
     def build(self):
         with tools.chdir(self.source_subfolder):
